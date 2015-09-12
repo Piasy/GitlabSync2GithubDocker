@@ -1,0 +1,7 @@
+#!/bin/sh
+ls . | grep "HandyWidgets"
+if [ $? == 0 ]; then
+    echo "Found HandyWidgets"
+else
+    echo "Not found"
+fi
