@@ -6,7 +6,9 @@ RUN apt-get update
 RUN apt-get upgrade -y
 
 # install dependency
-RUN apt-get install -y git
+RUN apt-get install -y git wget
+RUN wget https://raw.githubusercontent.com/Piasy/GitlabSync2GithubDocker/master/gitAmHandy
+RUN chmod +x ./gitAmHandy
 
 # entry point
-ENTRYPOINT ["gitAmHandy"]
+ENTRYPOINT ["./gitAmHandy"]
