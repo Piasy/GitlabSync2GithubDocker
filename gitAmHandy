@@ -1,9 +1,48 @@
-#!/bin/sh
-ls . | grep "HandyWidgets"
-if [ $? == 0 ]; then
-    echo "Found HandyWidgets"
+#!/bin/bash
+# HandyWidgetsPath="/Users/piasy/src/HandyWidgets"
+# YoloAndroidPath="/Users/piasy/src/AndroidStudioProjects/Yolo/piasyRepo/Yolo-Android"
+HandyWidgetsPath="/tmp/HandyWidgets"
+YoloAndroidPath="/tmp/Yolo-Android"
+HandyWidgetsGit="git@github.com:Piasy/HandyWidgets.git"
+YoloAndroidGit="git@123.57.188.103:xujianlin/Yolo-Android.git"
+CWD=`pwd`
+
+ls $HandyWidgetsPath/.. | grep "HandyWidgets"
+HandyWidgetsCloned=$?
+
+ls $YoloAndroidPath/.. | grep "Yolo-Android"
+YoloAndroidCloned=$?
+
+if [ $HandyWidgetsCloned != 0 ]; then
+  echo "HandyWidgets not exist, clone it"
+  git clone $HandyWidgetsGit $HandyWidgetsPath
 else
-    echo "Not found"
+  echo "HandyWidgets exist, pull it"
+  cd $HandyWidgetsPath && git pull --rebase && cd $CWD
 fi
 
-pwd
+if [ $YoloAndroidCloned != 0 ]; then
+  echo "Yolo-Android not exist, clone it"
+  git clone $YoloAndroidGit $YoloAndroidPath
+else
+  echo "HandyWidgets exist, pull it"
+  cd $YoloAndroidPath && git pull --rebase && cd $CWD
+fi
+
+cp -r $YoloAndroidPath/HandyWidgets/* $HandyWidgetsPath/
+cd $HandyWidgetsPath && git status | grep "nothing to commit, working directory clean"
+IsDirty=$?
+
+if [ $IsDirty != 0 ]; then
+  echo "New modification detected!"
+  CommitMsg=`cd $YoloAndroidPath && git log -1 --pretty=format:"%s" > /tmp/gitlog && cat /tmp/gitlog`
+  CommitId=`cd $YoloAndroidPath && git log -1 --pretty=format:"%H" > /tmp/gitlog && cat /tmp/gitlog`
+  cd $HandyWidgetsPath && git add -A && git commit -m "$CommitMsg" && git push
+  if [ $? != 0 ]; then
+    echo "\nSubject: Auto sync fail\n\nCommit: $CommitId\nMessage: $CommitMsg\n" | sendmail xz4215@163.com
+  fi
+else
+  echo "No modification"
+fi
+
+cd $CWD

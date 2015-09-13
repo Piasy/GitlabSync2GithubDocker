@@ -7,6 +7,8 @@ RUN apt-get upgrade -y
 
 # install dependency
 RUN apt-get install -y git wget
+
+# install
 RUN wget https://raw.githubusercontent.com/Piasy/GitlabSync2GithubDocker/master/gitAmHandy
 RUN chmod +x ./gitAmHandy
 
